@@ -1801,6 +1801,7 @@ func getLatestVersion() string {
 }
 
 func doVersionCheck(config *RootCommandConfig) {
+	fmt.Println("***VERSION CHECK***")
 	var latest = getLatestVersion()
 	var currentTime = time.Now().Format("2006-01-02 15:04:05 -0700 MST")
 
@@ -1820,21 +1821,30 @@ func doVersionCheck(config *RootCommandConfig) {
 	}
 }
 
+func skipVersionCheck(config *RootCommandConfig) bool {
+	return config.SkipVersionCheck
+}
+
 func getLastCheckTime(config *RootCommandConfig) string {
 	return config.CliConfig.GetString("lastversioncheck")
 }
 
 func checkTime(config *RootCommandConfig) {
-	var lastCheckTime = getLastCheckTime(config)
+	fmt.Println("CHECK TIME")
+	if skipVersionCheck(config) {
+		Debug.logf("skip-version-check flag detected. Skipping the version check")
+	} else {
+		doVersionCheck(config)
+		// var lastCheckTime = getLastCheckTime(config)
 
-	lastTime, err := time.Parse("2006-01-02 15:04:05 -0700 MST", lastCheckTime)
-	if err != nil {
-		Debug.logf("Could not parse the config file's lastversioncheck: %v. Continuing with a new version check...", err)
-		doVersionCheck(config)
-	} else if time.Since(lastTime).Hours() > 24 {
-		doVersionCheck(config)
+		// lastTime, err := time.Parse("2006-01-02 15:04:05 -0700 MST", lastCheckTime)
+		// if err != nil {
+		// 	Debug.logf("Could not parse the config file's lastversioncheck: %v. Continuing with a new version check...", err)
+		// 	doVersionCheck(config)
+		// } else if time.Since(lastTime).Hours() > 24 {
+		// 	doVersionCheck(config)
+		// }
 	}
-
 }
 
 // TEMPORARY CODE: sets the old v1 index to point to the new v2 index (latest)

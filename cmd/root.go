@@ -41,6 +41,7 @@ type RootCommandConfig struct {
 	CfgFile          string
 	Dryrun           bool
 	Verbose          bool
+	SkipVersionCheck bool
 	CliConfig        *viper.Viper
 	Buildah          bool
 	ProjectConfig    *ProjectConfig
@@ -69,6 +70,7 @@ func homeDir() (string, error) {
 const operatorHome = "https://github.com/appsody/appsody-operator/releases/latest/download"
 
 func newRootCmd(projectDir string, args []string) (*cobra.Command, error) {
+	fmt.Println("NEW ROOT CMD")
 	rootConfig := &RootCommandConfig{}
 
 	rootConfig.ProjectDir = projectDir
@@ -83,9 +85,10 @@ Complete documentation is available at https://appsody.dev`,
 		//Run: no run action for the root command
 	}
 
-	rootCmd.PersistentFlags().StringVar(&rootConfig.CfgFile, "config", "", "config file (default is $HOME/.appsody/.appsody.yaml)")
+	rootCmd.PersistentFlags().StringVar(&rootConfig.CfgFile, "config", "", "Config file (default is $HOME/.appsody/.appsody.yaml)")
 	rootCmd.PersistentFlags().BoolVarP(&rootConfig.Verbose, "verbose", "v", false, "Turns on debug output and logging to a file in $HOME/.appsody/logs")
 	rootCmd.PersistentFlags().BoolVar(&rootConfig.Dryrun, "dryrun", false, "Turns on dry run mode")
+	rootCmd.PersistentFlags().BoolVar(&rootConfig.SkipVersionCheck, "skip-version-check", false, "Skips the appsody version check")
 
 	// parse the root flags and init logging before adding all the other commands in case those log messages
 	rootCmd.SetArgs(args)
@@ -126,6 +129,7 @@ Complete documentation is available at https://appsody.dev`,
 }
 
 func setupConfig(args []string, config *RootCommandConfig) error {
+	fmt.Println("SETUP CONFIG")
 	if config.setupConfigRun {
 		return nil
 	}
@@ -137,7 +141,8 @@ func setupConfig(args []string, config *RootCommandConfig) error {
 	if err != nil {
 		return err
 	}
-
+	fmt.Println(args)
+	fmt.Println(config)
 	checkTime(config)
 	setNewIndexURL(config)
 	setNewRepoName(config)
@@ -181,6 +186,7 @@ func getDefaultConfigFile(config *RootCommandConfig) string {
 }
 
 func Execute(version string) {
+	fmt.Println("EXECUTE")
 	dir, err := os.Getwd()
 	if err != nil {
 		fmt.Println("Error getting current directory: ", err)
@@ -192,6 +198,7 @@ func Execute(version string) {
 }
 
 func ExecuteE(version string, projectDir string, args []string) error {
+	fmt.Println("EXECUTE E")
 	VERSION = version
 	rootCmd, err := newRootCmd(projectDir, args)
 	if err != nil {
